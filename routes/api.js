@@ -9,15 +9,88 @@
 'use strict';
 
 var expect = require('chai').expect;
-var MongoClient = require('mongodb');
+const got = require('got');
+var MongoClient = require('mongodb').MongoClient;
+var ObjectId = require('mongodb').ObjectID;
 
-const CONNECTION_STRING = process.env.DB; //MongoClient.connect(CONNECTION_STRING, function(err, db) {});
+const CONNECTION_STRING = process.env.DB;
+const mongo = new MongoClient(CONNECTION_STRING, { useUnifiedTopology: true });
+let col;
+
+mongo.connect((err, client) => {
+    if (err) {
+        console.error('connection error to db');
+    } else {
+        console.log('db connection successful');
+        col = mongo.db().collection('stocks');
+    }
+});
+
+const get_source = (stock) => `https://repeated-alpaca.glitch.me/v1/stock/${stock}/quote`;
+
+async function retrieve_stock(stock, like, ip) {
+    let r = await got.get(get_source(stock)).json();
+    let update_object = {
+        $set: { stock: r.symbol },
+        $setOnInsert: { likes_ip: [] },
+    };
+
+    if (like) {
+        update_object['$addToSet'] = { likes_ip: ip };
+        delete update_object.$setOnInsert;
+    }
+
+    let r2 = await col.findOneAndUpdate({
+        stock: r.symbol,
+    },
+    update_object,
+    {
+        returnOriginal: false,
+        upsert: true,
+        projection: {
+            likes_ip: 1,
+        }
+    });
+
+    if (r2.ok){
+        return {
+            stock: r.symbol,
+            price: r.latestPrice,
+            likes: r2.value.likes_ip.length,
+        };
+    } else {
+        throw new Error('Database Error');
+    }
+}
 
 module.exports = function (app) {
 
   app.route('/api/stock-prices')
-    .get(function (req, res){
-      
+    .get(async function (req, res){
+        let stock = req.query.stock;
+        let like = req.query.like;
+        if (!stock) {
+            return res.status(422).send('no stock selected');
+        }
+
+        if (Array.isArray(stock)){
+            let promise_list = [];
+            stock.forEach((val) => {
+                promise_list.push(retrieve_stock(val, like, req.ip));
+            });
+            // TODO: compare likes
+            try {
+                let r = await Promise.all(promise_list);
+                return res.json(r);
+            } catch (e) {
+                return res.status(500).send(e.message);
+            }
+        } else {
+            try {
+                return res.json(await retrieve_stock(stock, like, req.ip));
+            } catch (e) {
+                return res.status(500).send(e.message);
+            }
+        }
     });
-    
 };
