@@ -87,13 +87,14 @@ module.exports = function (app) {
                     rest['rel_likes'] = val.likes - r[(idx - 1) * (-1)].likes;
                     return rest;
                 });
-                return res.json(r2);
+                return res.json({ stockData: r2 });
             } catch (e) {
                 return res.status(500).send(e.message);
             }
         } else {
             try {
-                return res.json(await retrieve_stock(stock, like, req.ip));
+                let r = await retrieve_stock(stock, like, req.ip);
+                return res.json({ stockData: r });
             } catch (e) {
                 return res.status(500).send(e.message);
             }

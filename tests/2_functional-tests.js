@@ -23,12 +23,14 @@ suite('Functional Tests', function() {
         .get('/api/stock-prices')
         .query({stock: 'goog'})
         .end(function(err, res){
-          assert.property(res.body, 'stock');
-          assert.property(res.body, 'price');
-          assert.property(res.body, 'likes');
-          assert.equal(res.body.stock, 'GOOG');
-          assert.isNumber(res.body.price, 'price is a number');
-          assert.isNumber(res.body.likes, 'likes is a number');
+          assert.isObject(res.body);
+          assert.property(res.body, 'stockData');
+          assert.property(res.body.stockData, 'stock');
+          assert.property(res.body.stockData, 'price');
+          assert.property(res.body.stockData, 'likes');
+          assert.equal(res.body.stockData.stock, 'GOOG');
+          assert.isNumber(res.body.stockData.price, 'price is a number');
+          assert.isNumber(res.body.stockData.likes, 'likes is a number');
           done();
         });
       });
@@ -41,13 +43,15 @@ suite('Functional Tests', function() {
             like: true,
         })
         .end(function(err, res){
-          assert.property(res.body, 'stock');
-          assert.property(res.body, 'price');
-          assert.property(res.body, 'likes');
-          assert.equal(res.body.stock, 'GOOG');
-          assert.isNumber(res.body.price, 'price is a number');
-          assert.isAtLeast(res.body.likes, 1, 'likes is at least 1');
-          like = res.body.likes;
+          assert.isObject(res.body);
+          assert.property(res.body, 'stockData');
+          assert.property(res.body.stockData, 'stock');
+          assert.property(res.body.stockData, 'price');
+          assert.property(res.body.stockData, 'likes');
+          assert.equal(res.body.stockData.stock, 'GOOG');
+          assert.isNumber(res.body.stockData.price, 'price is a number');
+          assert.isAtLeast(res.body.stockData.likes, 1, 'likes is at least 1');
+          like = res.body.stockData.likes;
           done();
         });
       });
@@ -60,12 +64,15 @@ suite('Functional Tests', function() {
             like: true,
         })
         .end(function(err, res){
-          assert.property(res.body, 'stock');
-          assert.property(res.body, 'price');
-          assert.property(res.body, 'likes');
-          assert.equal(res.body.stock, 'GOOG');
-          assert.isNumber(res.body.price, 'price is a number');
-          assert.equal(res.body.likes, like, 'likes should not increase from same ip "like" request');
+          assert.isObject(res.body);
+          assert.property(res.body, 'stockData');
+          assert.property(res.body.stockData, 'stock');
+          assert.property(res.body.stockData, 'price');
+          assert.property(res.body.stockData, 'likes');
+          assert.equal(res.body.stockData.stock, 'GOOG');
+          assert.isNumber(res.body.stockData.price, 'price is a number');
+          assert.isNumber(res.body.stockData.likes, 'likes is a number');
+          assert.equal(res.body.stockData.likes, like, 'likes should not increase from same ip "like" request');
           done();
         });
       });
@@ -77,21 +84,23 @@ suite('Functional Tests', function() {
             stock: ['goog', 'msft'],
         })
         .end(function(err, res){
-          assert.isArray(res.body);
-          assert.property(res.body[0], 'stock');
-          assert.property(res.body[0], 'price');
-          assert.property(res.body[0], 'rel_likes');
-          assert.property(res.body[1], 'stock');
-          assert.property(res.body[1], 'price');
-          assert.property(res.body[1], 'rel_likes');
-          assert.include(['GOOG', 'MSFT'], res.body[0].stock, 'one of "GOOG" or "MSFT"');
-          assert.include(['GOOG', 'MSFT'], res.body[1].stock, 'one of "GOOG" or "MSFT"');
-          assert.isNumber(res.body[0].price, 'price is a number');
-          assert.isNumber(res.body[0].rel_likes, 'likes is a number');
-          assert.isNumber(res.body[1].price, 'price is a number');
-          assert.isNumber(res.body[1].rel_likes, 'likes is a number');
-          rel_likes[res.body[0].stock] = res.body[0].rel_likes;
-          rel_likes[res.body[1].stock] = res.body[1].rel_likes;
+          assert.isObject(res.body);
+          assert.property(res.body, 'stockData');
+          assert.isArray(res.body.stockData);
+          assert.property(res.body.stockData[0], 'stock');
+          assert.property(res.body.stockData[0], 'price');
+          assert.property(res.body.stockData[0], 'rel_likes');
+          assert.property(res.body.stockData[1], 'stock');
+          assert.property(res.body.stockData[1], 'price');
+          assert.property(res.body.stockData[1], 'rel_likes');
+          assert.include(['GOOG', 'MSFT'], res.body.stockData[0].stock, 'one of "GOOG" or "MSFT"');
+          assert.include(['GOOG', 'MSFT'], res.body.stockData[1].stock, 'one of "GOOG" or "MSFT"');
+          assert.isNumber(res.body.stockData[0].price, 'price is a number');
+          assert.isNumber(res.body.stockData[0].rel_likes, 'likes is a number');
+          assert.isNumber(res.body.stockData[1].price, 'price is a number');
+          assert.isNumber(res.body.stockData[1].rel_likes, 'likes is a number');
+          rel_likes[res.body.stockData[0].stock] = res.body.stockData[0].rel_likes;
+          rel_likes[res.body.stockData[1].stock] = res.body.stockData[1].rel_likes;
           done();
         });
 
@@ -105,21 +114,23 @@ suite('Functional Tests', function() {
             like: true,
         })
         .end(function(err, res){
-          assert.isArray(res.body);
-          assert.property(res.body[0], 'stock');
-          assert.property(res.body[0], 'price');
-          assert.property(res.body[0], 'rel_likes');
-          assert.property(res.body[1], 'stock');
-          assert.property(res.body[1], 'price');
-          assert.property(res.body[1], 'rel_likes');
-          assert.include(['GOOG', 'MSFT'], res.body[0].stock, 'one of "GOOG" or "MSFT"');
-          assert.include(['GOOG', 'MSFT'], res.body[1].stock, 'one of "GOOG" or "MSFT"');
-          assert.isNumber(res.body[0].price, 'price is a number');
-          assert.isNumber(res.body[0].rel_likes, 'likes is a number');
-          assert.isNumber(res.body[1].price, 'price is a number');
-          assert.isNumber(res.body[1].rel_likes, 'likes is a number');
-          assert.equal(res.body[0].rel_likes, rel_likes[res.body[0].stock], "rel_likes should remain unchanged from both addition of likes count");
-          assert.equal(res.body[1].rel_likes, rel_likes[res.body[1].stock], "rel_likes should remain unchanged from both addition of likes count");
+          assert.isObject(res.body);
+          assert.property(res.body, 'stockData');
+          assert.isArray(res.body.stockData);
+          assert.property(res.body.stockData[0], 'stock');
+          assert.property(res.body.stockData[0], 'price');
+          assert.property(res.body.stockData[0], 'rel_likes');
+          assert.property(res.body.stockData[1], 'stock');
+          assert.property(res.body.stockData[1], 'price');
+          assert.property(res.body.stockData[1], 'rel_likes');
+          assert.include(['GOOG', 'MSFT'], res.body.stockData[0].stock, 'one of "GOOG" or "MSFT"');
+          assert.include(['GOOG', 'MSFT'], res.body.stockData[1].stock, 'one of "GOOG" or "MSFT"');
+          assert.isNumber(res.body.stockData[0].price, 'price is a number');
+          assert.isNumber(res.body.stockData[0].rel_likes, 'likes is a number');
+          assert.isNumber(res.body.stockData[1].price, 'price is a number');
+          assert.isNumber(res.body.stockData[1].rel_likes, 'likes is a number');
+          assert.equal(res.body.stockData[0].rel_likes, rel_likes[res.body.stockData[0].stock], "rel_likes should remain unchanged from both addition of likes count");
+          assert.equal(res.body.stockData[1].rel_likes, rel_likes[res.body.stockData[1].stock], "rel_likes should remain unchanged from both addition of likes count");
           done();
         });
 
