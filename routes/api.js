@@ -78,10 +78,16 @@ module.exports = function (app) {
             stock.forEach((val) => {
                 promise_list.push(retrieve_stock(val, like, req.ip));
             });
-            // TODO: compare likes
             try {
                 let r = await Promise.all(promise_list);
-                return res.json(r);
+                // compare likes
+                let diff = Math.abs(r[0] - r[1]);
+                let r2 = r.map((val, idx) => {
+                    const { likes, ...rest } = val;
+                    rest['rel_likes'] = val.likes - r[(idx - 1) * (-1)].likes;
+                    return rest;
+                });
+                return res.json(r2);
             } catch (e) {
                 return res.status(500).send(e.message);
             }
